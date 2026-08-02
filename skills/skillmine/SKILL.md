@@ -8,19 +8,45 @@ description: Search the user's own Claude Code history to check whether a reques
 Finds repeated requests in the user's own conversation history and turns the
 repetition into a skill draft. Everything runs locally; nothing leaves the machine.
 
-## Step 1 — make sure the binary exists
+## Step 1 — locate the binary
+
+Work down this list and stop at the first that succeeds. Remember which form
+worked and reuse that exact command in every later step.
+
+**1. Already on PATH:**
 
 ```bash
-skillmine -query test -top 1
+command -v skillmine
 ```
 
-If the command is not found, install it and say so:
+**2. Installed but not on PATH.** This is the common case, not an edge case:
+`go install` writes to `$(go env GOPATH)/bin`, which many setups never export.
+
+```bash
+ls "$(go env GOPATH)/bin/skillmine"
+```
+
+**3. Not installed — build it.** When this skill came from the plugin
+marketplace, `$CLAUDE_PLUGIN_ROOT` points at a full checkout including the Go
+source, so no download is needed:
+
+```bash
+go build -o "$(go env GOPATH)/bin/skillmine" "$CLAUDE_PLUGIN_ROOT"
+```
+
+If that variable is empty, fetch instead:
 
 ```bash
 go install github.com/MattK97/skillmine@latest
 ```
 
-If Go is unavailable, stop and tell the user. Do not reimplement the search.
+**After building or installing, call it by full path** —
+`"$(go env GOPATH)/bin/skillmine"` — not by name. PATH does not change inside a
+running session, so plain `skillmine` will still fail and you will loop.
+
+If `go` itself is missing, say so plainly and stop. Do not fall back to grepping
+the transcripts by hand: the ranking is the entire point of the tool, and a
+keyword grep produces confident nonsense.
 
 ## Step 2 — decide the query
 

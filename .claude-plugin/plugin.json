@@ -1,0 +1,9 @@
+{
+  "name": "skillmine",
+  "version": "0.1.0",
+  "description": "Search your own Claude Code history for repeated requests and see what was actually done each time, so a habit can become a skill.",
+  "author": {
+    "name": "MattK97",
+    "url": "https://github.com/MattK97"
+  }
+}

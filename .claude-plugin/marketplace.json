@@ -1,0 +1,17 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-marketplace.json",
+  "name": "skillmine",
+  "description": "Find the requests you keep repeating, and the steps that answered them.",
+  "owner": {
+    "name": "MattK97",
+    "url": "https://github.com/MattK97"
+  },
+  "plugins": [
+    {
+      "name": "skillmine",
+      "description": "Search your own Claude Code history for repeated requests and draft a skill from what was actually done.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

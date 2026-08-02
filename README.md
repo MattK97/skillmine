@@ -18,15 +18,28 @@ is made of. A skill written from your prompts alone just restates the request.
 
 ## Install
 
+### As a Claude Code plugin
+
+In Claude Code or Claude Desktop: **Plugins → Add marketplace →
+`MattK97/skillmine`**, then install the `skillmine` plugin. That brings the skill
+with it, so the agent can run the tool on its own.
+
+Plugins load at session start, so open a new session afterwards.
+
+The plugin ships the Go source rather than a binary. On first use the skill
+builds it into `$(go env GOPATH)/bin`; Go must be installed.
+
+### As a command-line tool only
+
 ```bash
 go install github.com/MattK97/skillmine@latest
 ```
 
-Optionally install the bundled skill so your agent can run the tool itself:
+Note that `go install` writes to `$(go env GOPATH)/bin`, which is not on PATH by
+default. Either add it, or install somewhere already on your PATH:
 
 ```bash
-git clone https://github.com/MattK97/skillmine
-cp -r skillmine/skills/skillmine ~/.claude/skills/
+GOBIN=~/.local/bin go install github.com/MattK97/skillmine@latest
 ```
 
 ## Usage
