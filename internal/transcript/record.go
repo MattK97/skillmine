@@ -25,6 +25,24 @@ type Turn struct {
 	Args string `json:"args,omitempty"` // truncated preview
 }
 
+// ExcludeSession drops every record belonging to one session.
+//
+// The usual caller is a search run from inside a live Claude Code session:
+// without this, the conversation currently in progress counts as history, and
+// anything discussed a few minutes ago looks like a recurring habit.
+func ExcludeSession(recs []Record, sessionID string) []Record {
+	if sessionID == "" {
+		return recs
+	}
+	out := make([]Record, 0, len(recs))
+	for _, r := range recs {
+		if r.SessionID != sessionID {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
 // Prompts returns only the user prompts, preserving order.
 func Prompts(recs []Record) []Record {
 	out := make([]Record, 0, len(recs)/4)

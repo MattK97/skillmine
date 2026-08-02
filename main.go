@@ -46,6 +46,13 @@ func run() error {
 	minScore := flag.Float64("min-score", 0.10, "similarity threshold, 0..1")
 	format := flag.String("format", "text", "output format: text or json")
 	withEvidence := flag.Bool("evidence", false, "include what was done after each hit")
+
+	// Defaults to the session the command is running inside, which Claude Code
+	// exports. Searching your own live conversation makes whatever you are
+	// discussing right now look like a long-standing habit, so it is excluded
+	// unless you ask otherwise. Empty when run from a plain terminal.
+	excludeSession := flag.String("exclude-session", os.Getenv("CLAUDE_CODE_SESSION_ID"),
+		"session id to leave out; defaults to the current Claude Code session")
 	flag.Parse()
 
 	if *query == "" {
@@ -70,6 +77,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
+	recs = transcript.ExcludeSession(recs, *excludeSession)
 
 	idx := search.New(transcript.Prompts(recs))
 

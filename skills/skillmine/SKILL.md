@@ -26,15 +26,27 @@ command -v skillmine
 ls "$(go env GOPATH)/bin/skillmine"
 ```
 
-**3. Not installed — build it.** When this skill came from the plugin
-marketplace, `$CLAUDE_PLUGIN_ROOT` points at a full checkout including the Go
-source, so no download is needed:
+**3. Not installed — build it from this plugin's own checkout.** The plugin
+directory contains the full Go source, so nothing is downloaded.
+
+Its path is the base directory given at the top of this skill with
+`/skills/skillmine` removed. For example, a base directory of
+`~/.claude/plugins/cache/skillmine/skillmine/0.1.0/skills/skillmine` makes the
+plugin root `~/.claude/plugins/cache/skillmine/skillmine/0.1.0`.
+
+Do not use `$CLAUDE_PLUGIN_ROOT`: it is set for hooks, not for shell commands,
+and will be empty here.
 
 ```bash
-go build -o "$(go env GOPATH)/bin/skillmine" "$CLAUDE_PLUGIN_ROOT"
+mkdir -p "$(go env GOPATH)/bin"
+cd "<plugin root>" && go build -o "$(go env GOPATH)/bin/skillmine" .
 ```
 
-If that variable is empty, fetch instead:
+`cd` first. Passing the directory as an argument — `go build -o out <dir>` —
+fails with "directory outside main module" whenever the working directory
+belongs to a different module.
+
+If this skill was not installed as a plugin, fetch it instead:
 
 ```bash
 go install github.com/MattK97/skillmine@latest
@@ -44,9 +56,10 @@ go install github.com/MattK97/skillmine@latest
 `"$(go env GOPATH)/bin/skillmine"` — not by name. PATH does not change inside a
 running session, so plain `skillmine` will still fail and you will loop.
 
-If `go` itself is missing, say so plainly and stop. Do not fall back to grepping
-the transcripts by hand: the ranking is the entire point of the tool, and a
-keyword grep produces confident nonsense.
+If `go` itself is missing, say so plainly, point the user at
+<https://go.dev/dl/>, and stop. Do not fall back to grepping the transcripts by
+hand: the ranking is the entire point of the tool, and a keyword grep produces
+confident nonsense.
 
 ## Step 2 — decide the query
 
@@ -147,6 +160,10 @@ On approval, save to `~/.claude/skills/<name>/SKILL.md`.
 ## Notes
 
 - Default corpus is `~/.claude/projects`. Override with `-dir`.
+- The conversation you are in right now is excluded automatically, via
+  `CLAUDE_CODE_SESSION_ID`. Without that, prompts from a few minutes ago count as
+  history and everything under discussion looks like a long-standing habit. Pass
+  `-exclude-session ""` to include it anyway.
 - `-min-score` defaults to 0.10. Lower it to widen a search that returns too little.
 - Matching cannot bridge synonyms that share no words. If recall looks poor, retry
   with a query mixing both vocabularies the user switches between.

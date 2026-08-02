@@ -89,6 +89,16 @@ For agents, `-format json` emits the same data with a precomputed verdict.
 | `-min-score` | 0.10 | similarity threshold, 0..1 |
 | `-format` | `text` | `text` or `json` |
 | `-evidence` | off | include tool calls and your replies |
+| `-exclude-session` | `$CLAUDE_CODE_SESSION_ID` | session to leave out |
+
+`-exclude-session` defaults to the conversation the command is running inside.
+Without it, a search started mid-conversation matches its own prompts from a few
+minutes ago, and whatever you are discussing right now looks like a long-standing
+habit. Pass an empty value to search everything.
+
+Note that excluding documents changes IDF, so hit counts between two runs with
+different corpora are not directly comparable — a term's weight depends on how
+many documents contain it.
 
 Truncating the display with `-top` never changes the summary — it is always
 computed over every hit above the threshold.

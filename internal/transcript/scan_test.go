@@ -117,6 +117,30 @@ func TestShorten(t *testing.T) {
 	}
 }
 
+func TestExcludeSession(t *testing.T) {
+	recs := []Record{
+		{UUID: "1", SessionID: "live", IsUser: true, Text: "asked a minute ago"},
+		{UUID: "2", SessionID: "old", IsUser: true, Text: "asked last month"},
+		{UUID: "3", SessionID: "live", Tools: []Turn{{Tool: "Bash"}}},
+		{UUID: "4", SessionID: "older", IsUser: true, Text: "asked in spring"},
+	}
+
+	got := ExcludeSession(recs, "live")
+	if len(got) != 2 {
+		t.Fatalf("ExcludeSession() kept %d records, want 2", len(got))
+	}
+	for _, r := range got {
+		if r.SessionID == "live" {
+			t.Errorf("record %s from the excluded session survived", r.UUID)
+		}
+	}
+
+	// An empty id means "exclude nothing", which is what a plain terminal gets.
+	if all := ExcludeSession(recs, ""); len(all) != len(recs) {
+		t.Errorf("ExcludeSession(recs, \"\") returned %d records, want %d", len(all), len(recs))
+	}
+}
+
 func TestPrompts(t *testing.T) {
 	recs := []Record{
 		{UUID: "1", IsUser: true, Text: "a"},
