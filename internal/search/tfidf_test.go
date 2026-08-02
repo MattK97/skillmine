@@ -132,9 +132,16 @@ func TestTokenize(t *testing.T) {
 			want: []string{"wyczys", "baze"},
 		},
 		{
-			name: "stop words removed",
-			in:   "please make sure you get the products",
-			want: []string{"produc"},
+			// NFD leaves these eight alone; the replacer table catches them.
+			name: "letters unicode normalisation does not decompose",
+			in:   "łóż straße æon øre",
+			want: []string{"loz", "strass", "aeon", "ore"},
+		},
+		{
+			// Beyond the languages a hand-written table would have covered.
+			name: "turkish, vietnamese, baltic",
+			in:   "değil tiếng šešios",
+			want: []string{"degil", "tieng", "sesios"},
 		},
 		{
 			name: "inflections collapse to a shared stem",

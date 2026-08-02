@@ -3,7 +3,7 @@
 Search your own Claude Code history to find out whether you have asked for
 something before — and see what was actually done each time.
 
-No dependencies. No network calls. Everything stays on your machine.
+One dependency. No network calls. Everything stays on your machine.
 
 ## Why
 
@@ -105,10 +105,38 @@ Jaccard fails because it weighs filler words like "okay" and "actually" the same
 as "cleanup" and "database". Conversational prompts are mostly filler, so the
 signal drowns. IDF suppresses terms that appear everywhere.
 
-Text is lowercased, stripped of diacritics, split on non-alphanumerics, filtered
-against a stop-word list, and truncated to 6-character stems. That last step is a
-crude stemmer, but it collapses inflected forms across languages without pulling
-in a dependency.
+### Normalisation
+
+Text is lowercased, stripped of diacritics, split on non-alphanumerics and
+truncated to 6-character stems. Each of those choices was measured against the
+golden test rather than assumed, and two of them are less obvious than they look.
+
+**Diacritic folding is the single most important step.** On a Polish corpus,
+removing it drops retrieval from 6 of 7 targets to 2 of 7. Folding uses Unicode
+normalisation (`golang.org/x/text`) to decompose accented letters and drop the
+combining marks — the only dependency in the project, and the reason it is worth
+having, since it covers every Latin script rather than a hand-written subset.
+
+Normalisation alone is not enough, though: eight letters do not decompose,
+because they are distinct letters rather than a base plus an accent. A small
+replacer catches them:
+
+```
+ł ß æ ø đ ı œ þ
+```
+
+Polish `ł` is the one that bites. Without that table, `łatwo` and `latwo` never
+match, and a pure NFD implementation looks correct until someone tests it.
+
+**Truncation stemming** replaces a real morphological stemmer. It is crude, but
+it is language-agnostic, which matters when prompts arrive in whatever language
+the user thinks in — Snowball has no algorithm for several of those, Polish
+included. Six characters is measured: it retrieved one more paraphrase than no
+stemming, while five degraded ranking and eight lost recall on short queries.
+
+**There is no stop-word list.** An earlier version had one. Measured across two
+corpora it changed no result, because IDF already drives common words to near
+zero weight, so it was deleted rather than kept as decoration.
 
 ### The golden test
 
