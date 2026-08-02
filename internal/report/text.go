@@ -32,13 +32,11 @@ func (TextReporter) Report(w io.Writer, res Result) error {
 	}
 
 	s := res.Summary
-	fmt.Fprintf(w, "\n%d %s · %d %s · %d %s · %d %s (%s .. %s)\n",
-		s.Hits, plural(s.Hits, "hit", "hits"),
-		s.Sessions, plural(s.Sessions, "session", "sessions"),
-		s.Projects, plural(s.Projects, "project", "projects"),
-		s.DaySpan, plural(s.DaySpan, "day", "days"),
-		s.First.Format("2006-01-02"), s.Last.Format("2006-01-02"))
-	fmt.Fprintf(w, "Verdict: %s\n", s.Verdict)
+	fmt.Fprintf(w, "\n%s (%s .. %s), %d %s\n",
+		s.Spread,
+		s.First.Format("2006-01-02"), s.Last.Format("2006-01-02"),
+		s.Projects, plural(s.Projects, "project", "projects"))
+	fmt.Fprintf(w, "%s\n", s.Guidance)
 
 	if len(res.Evidence) > 0 {
 		return writeEvidence(w, res)

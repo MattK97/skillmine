@@ -56,6 +56,11 @@ func New(docs []transcript.Record) *Index {
 	return x
 }
 
+// ContentWords reports how many indexable terms a string yields, after
+// stripping punctuation and short tokens. A query of one content word searches
+// for a subject area rather than for a particular request.
+func ContentWords(s string) int { return len(tokenize(s)) }
+
 // Len reports the number of indexed prompts.
 func (x *Index) Len() int { return len(x.docs) }
 

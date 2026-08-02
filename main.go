@@ -76,7 +76,7 @@ func run() error {
 	// Summarise every hit above the threshold, then truncate for display.
 	// Otherwise -top would change the verdict.
 	all := idx.Search(*query, 0, *minScore)
-	summary := report.Summarize(all)
+	summary := report.Summarize(*query, all)
 
 	shown := all
 	if *top > 0 && len(shown) > *top {

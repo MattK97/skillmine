@@ -42,8 +42,9 @@ Query: "reset the database"
  2. 0.418  2026-03-02  demo-app     reset the test database, keep only my user account and phone number
  3. 0.219  2026-04-20  demo-app     clean the database, products and the message history need to go
 
-4 hits · 3 sessions · 1 project · 50 days (2026-03-02 .. 2026-04-20)
-Verdict: repeated — worth turning into a skill
+4 prompts on 3 separate days, over a 50-day window (2026-03-02 .. 2026-04-20), 1 project
+recurring. Read the matched prompts before acting: are they the same request
+phrased differently, or unrelated work that shares a topic? Only the first makes a skill.
 ```
 
 Add `-evidence` to see what happened next:
@@ -76,8 +77,25 @@ For agents, `-format json` emits the same data with a precomputed verdict.
 | `-format` | `text` | `text` or `json` |
 | `-evidence` | off | include tool calls and your replies |
 
-Truncating the display with `-top` never changes the verdict — the summary is
-always computed over every hit above the threshold.
+Truncating the display with `-top` never changes the summary — it is always
+computed over every hit above the threshold.
+
+### What the summary does and does not claim
+
+It reports that a query matched *N* prompts on *D* separate days. Days, not
+sessions: a Claude Code session id survives resumption, so on a real corpus three
+of four sessions spanned multiple days, making session counts useless as a proxy
+for separate occasions.
+
+It deliberately stops short of saying "make a skill out of this". Whether the
+matches are one request phrased differently or unrelated work sharing a subject
+is a semantic judgement, and two attempts to measure it from the text failed —
+mean pairwise similarity within the hit set ranked a pure topic search
+(`flutter`, 0.160) *above* a genuine repeated request (`reset database, keep the
+user`, 0.089). So the tool reports the spread and hands the judgement over.
+
+One-word queries are flagged (`broad_query`) for the same reason: `supabase`
+returns fifteen matches across nine days that share nothing but a product name.
 
 ## Using it from an agent
 

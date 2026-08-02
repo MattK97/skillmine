@@ -47,22 +47,34 @@ Read `summary`:
 | field | meaning |
 |---|---|
 | `hits` | how many past prompts matched |
-| `sessions` | how many distinct sessions they came from |
+| `days` | how many distinct calendar days they fall on |
 | `day_span` | days between the first and last match |
-| `repeated` | true when hits >= 3 and sessions >= 2 |
-| `verdict` | one-line plain-language conclusion |
+| `sessions` | informational only — a session id survives resumption and can span weeks |
+| `recurring` | true when hits >= 3 across >= 3 distinct days |
+| `broad_query` | true when the query had fewer than two content words |
+| `guidance` | what you still have to decide |
 
 ## Step 4 — judge, and be willing to say no
 
-`repeated: false` → say plainly that this looks like a one-off, and stop.
-Do not manufacture a skill out of two coincidental matches.
+**The tool does not decide whether something deserves a skill. You do.**
 
-`repeated: true` → **still read the matched prompt texts before continuing.**
-Lexical matching can group prompts that merely share vocabulary. If the matches
-are not the same intent, say so and stop.
+It can establish that a query matched on several separate days. It cannot tell
+whether those matches are one request phrased differently or unrelated work that
+happens to share a subject. That distinction is semantic, and measuring it from
+the text was tried and does not work.
 
-Many matches inside a single session on a single day usually mean one debugging
-run, not a habit. `sessions` and `day_span` are the signal, not `hits`.
+`broad_query: true` → the query was one word, so the results are a subject area.
+Do not judge from this. Re-run with several words drawn from the actual request.
+
+`recurring: false` → say plainly this looks like a one-off, and stop.
+
+`recurring: true` → **read the matched prompt texts before going further.**
+Ask yourself: is this the same request each time, or twelve different things
+that all mention the same tool? A query like `supabase` will happily return
+fifteen matches across nine days that share nothing but a product name.
+
+If the matches are not one request, say so and stop. That is a useful answer,
+not a failure.
 
 ## Step 5 — collect evidence
 
