@@ -18,29 +18,92 @@ is made of. A skill written from your prompts alone just restates the request.
 
 ## Install
 
-### As a Claude Code plugin
+Requires [Go](https://go.dev/dl/). The plugin ships source, not binaries.
 
-In Claude Code or Claude Desktop: **Plugins → Add marketplace →
-`MattK97/skillmine`**, then install the `skillmine` plugin. That brings the skill
-with it, so the agent can run the tool on its own.
+<details>
+<summary><strong>Claude Code</strong></summary>
 
-Plugins load at session start, so open a new session afterwards.
+```bash
+claude plugin marketplace add MattK97/skillmine
+claude plugin install skillmine@skillmine
+```
 
-The plugin ships the Go source rather than a binary. On first use the skill
-builds it into `$(go env GOPATH)/bin`; Go must be installed.
+Start a new session and type `/skillmine`. No local clone needed — Claude Code
+fetches the repo and keeps it updated.
 
-### As a command-line tool only
+On first use the skill builds the binary into `$(go env GOPATH)/bin` from the
+plugin's own checkout, so nothing extra is downloaded.
+
+**Verify**
+
+```bash
+claude plugin list
+```
+
+**Update**
+
+```bash
+claude plugin marketplace update skillmine
+claude plugin install skillmine@skillmine
+```
+
+**Uninstall**
+
+```bash
+claude plugin uninstall skillmine
+claude plugin marketplace remove skillmine
+```
+
+Or keep it and turn it off: `claude plugin disable skillmine`.
+
+</details>
+
+<details>
+<summary><strong>Command line only</strong></summary>
 
 ```bash
 go install github.com/MattK97/skillmine@latest
 ```
 
-Note that `go install` writes to `$(go env GOPATH)/bin`, which is not on PATH by
-default. Either add it, or install somewhere already on your PATH:
+`go install` writes to `$(go env GOPATH)/bin`, which is not on PATH by default.
+Either add it, or install somewhere that already is:
 
 ```bash
 GOBIN=~/.local/bin go install github.com/MattK97/skillmine@latest
 ```
+
+</details>
+
+<details>
+<summary><strong>Cursor, Zed, Copilot, and other agent-skills harnesses</strong></summary>
+
+`skills/skillmine/SKILL.md` is a plain Agent Skill, so any harness that reads the
+format can use it. It needs the binary on PATH, so install that first (see
+above), then drop the skill folder where your agent looks:
+
+```bash
+git clone https://github.com/MattK97/skillmine
+cp -R skillmine/skills/skillmine ~/.cursor/skills/     # or ~/.copilot/skills, ~/.config/zed/skills, ...
+```
+
+Or with the [skills CLI](https://github.com/obra/skills):
+
+```bash
+npx skills add MattK97/skillmine
+```
+
+The skill's build step looks for the plugin checkout and will not find one here,
+so make sure `skillmine` resolves on PATH before invoking it.
+
+</details>
+
+### Troubleshooting
+
+**`/skillmine` missing from autocomplete.** Start a new session; the plugin index
+is read once at startup.
+
+**An update does not show up.** Claude Code does not re-check the remote on its
+own. Run `claude plugin marketplace update skillmine`, then reinstall and restart.
 
 ## Usage
 
